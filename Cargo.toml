@@ -3,8 +3,15 @@ name = "mastodon"
 version = "0.1.0"
 authors = ["tinaun <tinagma@gmail.com>"]
 
+description = "client api for interacting with mastodon instances"
+repository = "https://github.com/tinaun/mastodon-rs"
+readme = "README.md"
+keywords = ["mastodon", "chat"]
+license = "MIT"
+
 [dependencies]
 serde = "0.8"
 serde_derive = "0.8"
 serde_json = "0.8"
 hyper = "0.9"
+
