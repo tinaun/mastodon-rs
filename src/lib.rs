@@ -1,3 +1,9 @@
+#![recursion_limit = "1024"]
+
+#[macro_use]
+extern crate error_chain;
+
+
 #[macro_use]
 extern crate serde_derive;
 
@@ -16,6 +22,22 @@ pub mod mastodon;
 ///
 /// see mod `tests` in src/lib.rs for basic use examples 
 
+mod errors {
+    use hyper;
+    use serde_json;
+    use std::io;
+
+    error_chain! {
+        foreign_links {
+            Server(super::entities::ServerError);
+            Hyper(hyper::Error);
+            Serde(serde_json::Error);
+            IO(io::Error);
+        }
+    }
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::mastodon::*;
@@ -23,15 +45,6 @@ mod tests {
     use std::io::{self, Read};
     use std::fs::File;
     use serde_json;
-
-    #[test]
-    fn test_serde() {
-        let f = File::open("output2.json").unwrap();
-        let value: Vec<Notification> = serde_json::from_reader(f).unwrap();
-
-        println!("{:#?}", value[0]);
-        
-    }
 
     #[test]
     fn test_fetching_data() {

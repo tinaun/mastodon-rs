@@ -2,7 +2,7 @@
 /// data structures for the mastodon api
 ///
 use std::fmt;
-
+use std::error;
 
 #[derive(Copy, Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub struct StatusId(u64);
@@ -202,4 +202,20 @@ impl From<RawNotification> for Notification {
 /// in most cases these will be translated into results
 pub struct ServerError {
     error: String
+}
+
+impl fmt::Display for ServerError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "server error: {}", self.error)
+    }
+}
+
+impl error::Error for ServerError {
+    fn description(&self) -> &str {
+        "server error"
+    }
+
+    fn cause(&self) -> Option<&error::Error> {
+        None
+    }
 }
