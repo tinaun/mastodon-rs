@@ -22,6 +22,15 @@ impl fmt::Display for UserId {
     }
 }
 
+#[derive(Copy, Clone, PartialEq, Debug, Serialize, Deserialize)]
+pub struct NotificationId(u64);
+
+impl fmt::Display for NotificationId { 
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Status {
     pub id: StatusId,
@@ -74,7 +83,51 @@ pub struct Account {
     statuses_count: u64,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+struct RawNotification {
+    #[serde(rename = "type")]
+    tag: String,
+    id: NotificationId,
+    account: Account,
+    status: Option<Status>,
+}
 
+#[derive(Debug)]
+pub enum Notification {
+    Follow {
+        id: NotificationId,
+        account: Account,
+    },
+    Favourite {
+        id: NotificationId,
+        account: Account,
+        status: Status,
+    },
+    Reblog {
+        id: NotificationId,
+        account: Account,
+        status: Status,
+    }
+}
 
-
+impl From<RawNotification> for Notification {
+    fn from(rn: RawNotification) -> Self {
+        match &rn.tag {
+            "follow" => Follow {
+                id: rn.id,
+                account: rn.account,
+            },
+            "favourite" => Reblog {
+                id: rn.id,
+                account: rn.account,
+                status: rn.status.unwrap()
+            },
+            "reblog" => Follow {
+                id: rn.id,
+                account: rn.account,
+            },
+            _ => panic!("this won't happen")
+        }
+    }
+}
 

@@ -1,5 +1,3 @@
-#![feature(proc_macro)]
-
 #[macro_use]
 extern crate serde_derive;
 
@@ -28,8 +26,8 @@ mod tests {
 
     #[test]
     fn test_serde() {
-        let f = File::open("output.json").unwrap();
-        let value: Vec<Status> = serde_json::from_reader(f).unwrap();
+        let f = File::open("output2.json").unwrap();
+        let value: Vec<Notification> = serde_json::from_reader(f).unwrap();
 
         println!("{:#?}", value[0]);
         
