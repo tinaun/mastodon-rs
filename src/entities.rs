@@ -94,6 +94,10 @@ struct RawNotification {
 
 #[derive(Debug)]
 pub enum Notification {
+    Mention {
+        id: NotificationId,
+        account: Account,
+    },
     Follow {
         id: NotificationId,
         account: Account,
@@ -107,26 +111,36 @@ pub enum Notification {
         id: NotificationId,
         account: Account,
         status: Status,
+    },
+    Unknown {
+        id: NotificationId,
     }
 }
 
 impl From<RawNotification> for Notification {
     fn from(rn: RawNotification) -> Self {
-        match &rn.tag {
-            "follow" => Follow {
+        match rn.tag.as_str() {
+            "mention" => Notification::Mention {
                 id: rn.id,
                 account: rn.account,
             },
-            "favourite" => Reblog {
-                id: rn.id,
-                account: rn.account,
-                status: rn.status.unwrap()
-            },
-            "reblog" => Follow {
+            "follow" => Notification::Follow {
                 id: rn.id,
                 account: rn.account,
             },
-            _ => panic!("this won't happen")
+            "favourite" => Notification::Favourite {
+                id: rn.id,
+                account: rn.account,
+                status: rn.status.unwrap(),
+            },
+            "reblog" => Notification::Reblog {
+                id: rn.id,
+                account: rn.account,
+                status: rn.status.unwrap(),
+            },
+            _ => Notification::Unknown {
+                id: rn.id,
+            }
         }
     }
 }
