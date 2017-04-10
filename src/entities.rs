@@ -38,6 +38,7 @@ pub struct Status {
     url: String,
     account: Account,
     in_reply_to_id: Option<StatusId>,
+    in_reply_to_account_id: Option<UserId>,
     reblog: Option<Box<Status>>,
     content: String,
     created_at: String,
@@ -45,8 +46,21 @@ pub struct Status {
     favourites_count: u64,
     reblogged: bool,
     favourited: bool,
+    sensitive: bool,
+    spoiler_text: bool,
+    visibility: Visibility, 
     media_attachments: Vec<MediaAttachment>,
-    mentions: Vec<Mention>
+    mentions: Vec<Mention>,
+    tags: Vec<Tag>,
+    application: Application
+}
+
+#[derive(PartialEq, Debug, Serialize, Deserialize)]
+pub enum Visibility {
+    Public,
+    Unlisted,
+    Private,
+    Direct,
 }
 
 #[derive(PartialEq, Debug, Serialize, Deserialize)]
@@ -58,13 +72,24 @@ pub enum MediaAttachment {
     Video {
         url: String,
         preview_url: String,
+    },
+    GifV {
+        url: String,
+        preview_url: String,
     }
+}
+
+#[derive(PartialEq, Debug, Serialize, Deserialize)]
+pub struct Tag {
+    name: String,
+    url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Mention {
     pub id: UserId,
     url: String,
+    username: String,
     acct: String,
 }
 
@@ -78,9 +103,25 @@ pub struct Account {
     url: String,
     avatar: String,
     header: String,
+    locked: bool,
+    created_at: String,
     followers_count: u64,
     following_count: u64,
     statuses_count: u64,
+}
+
+#[derive(PartialEq, Debug, Serialize, Deserialize)]
+pub struct Application {
+    name: String,
+    website: String,
+}
+
+#[derive(PartialEq, Debug, Serialize, Deserialize)]
+pub struct Instance {
+    uri: String,
+    title: String,
+    description: String,
+    email: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -88,6 +129,7 @@ struct RawNotification {
     #[serde(rename = "type")]
     tag: String,
     id: NotificationId,
+    created_at: String,
     account: Account,
     status: Option<Status>,
 }
@@ -96,24 +138,29 @@ struct RawNotification {
 pub enum Notification {
     Mention {
         id: NotificationId,
+        created_at: String,
         account: Account,
     },
     Follow {
         id: NotificationId,
+        created_at: String,
         account: Account,
     },
     Favourite {
         id: NotificationId,
+        created_at: String,
         account: Account,
         status: Status,
     },
     Reblog {
         id: NotificationId,
+        created_at: String,
         account: Account,
         status: Status,
     },
     Unknown {
         id: NotificationId,
+        created_at: String,
     }
 }
 
@@ -122,26 +169,37 @@ impl From<RawNotification> for Notification {
         match rn.tag.as_str() {
             "mention" => Notification::Mention {
                 id: rn.id,
+                created_at: rn.created_at,
                 account: rn.account,
             },
             "follow" => Notification::Follow {
                 id: rn.id,
+                created_at: rn.created_at,
                 account: rn.account,
             },
             "favourite" => Notification::Favourite {
                 id: rn.id,
+                created_at: rn.created_at,
                 account: rn.account,
                 status: rn.status.unwrap(),
             },
             "reblog" => Notification::Reblog {
                 id: rn.id,
+                created_at: rn.created_at,
                 account: rn.account,
                 status: rn.status.unwrap(),
             },
             _ => Notification::Unknown {
                 id: rn.id,
+                created_at: rn.created_at,
             }
         }
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+/// a server sent error
+/// in most cases these will be translated into results
+pub struct ServerError {
+    error: String
+}
