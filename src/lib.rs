@@ -53,8 +53,14 @@ mod tests {
     fn test_fetching_data() {
         let mastodon = Mastodon::from_access_token("ACCESS_TOKEN_HERE").unwrap();
 
-        let recent_statuses = mastodon.home_timeline().unwrap();
+        //let recent_statuses = mastodon.home_timeline().unwrap();
+        //assert_eq!(20, recent_statuses.len());
 
-        println!("{:#?}", recent_statuses[0]);
+        //let status = mastodon.get_status(StatusId(2186739)).unwrap();
+        //assert_eq!(2186739, status.id.0);
+        let status = mastodon.get_status_card(StatusId(2186739));
+        println!("{:?}", status);
+        //let status = mastodon.get_status_context(StatusId(2186739));
+        //println!("{:?}", status.unwrap());
     }
 }

@@ -43,7 +43,7 @@ mod nullbool {
 }
 
 #[derive(Copy, Clone, PartialEq, Debug, Serialize, Deserialize)]
-pub struct StatusId(u64);
+pub struct StatusId(pub u64);
 
 impl fmt::Display for StatusId {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -52,7 +52,7 @@ impl fmt::Display for StatusId {
 }
 
 #[derive(Copy, Clone, PartialEq, Debug, Serialize, Deserialize)]
-pub struct UserId(u64);
+pub struct UserId(pub u64);
 
 impl fmt::Display for UserId {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -61,7 +61,7 @@ impl fmt::Display for UserId {
 }
 
 #[derive(Copy, Clone, PartialEq, Debug, Serialize, Deserialize)]
-pub struct NotificationId(u64);
+pub struct NotificationId(pub u64);
 
 impl fmt::Display for NotificationId { 
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -162,8 +162,20 @@ pub struct Mention {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Context {
-    ancestors: Vec<Status>,
-    descendants: Vec<Status>,
+    pub ancestors: Vec<Status>,
+    pub descendants: Vec<Status>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum Card {
+    NoCard {},
+    Card {
+        url: String,
+        title: String,
+        description: String,
+        image: Option<String>,
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

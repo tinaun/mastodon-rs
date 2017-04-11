@@ -85,6 +85,15 @@ impl Mastodon {
         })
     }
 
+
+    /// get card associated with status
+    pub fn get_status_card(&self, id: StatusId) -> Result<Card> {
+        self._get_request(format!("/statuses/{}/card", id), None).and_then(|r| {
+            parse_response!(r)
+        })
+    }
+
+
     /// get user object with id `id`
     pub fn get_account(&self, id: UserId) -> Result<Account> {
         self._get_request(format!("/accounts/{}", id), None).and_then(|r| {
