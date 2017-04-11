@@ -1,4 +1,14 @@
 #![recursion_limit = "1024"]
+//! # mastodon 
+//! ## api for interacting with [mastodon](https://github.com/tootsuite/mastodon) instances
+//!
+//! this is very early in development, with only a few basic api endpoints implemented.
+//!
+//! you need to [generate an access token](https://github.com/tootsuite/mastodon/wiki/Testing-with-cURL) manually, for now
+//!
+//!
+//! see mod `tests` in src/lib.rs for basic use examples. 
+
 
 #[macro_use]
 extern crate error_chain;
@@ -15,15 +25,7 @@ extern crate hyper_native_tls;
 pub mod entities;
 pub mod mastodon;
 
-/// # mastodon - api for interacting with [mastodon](https://github.com/Gargron/mastodon) instances
-///
-/// this is very early in development, with only a few basic api endpoints implemented
-/// you need to [generate an access token](https://github.com/Gargron/mastodon/wiki/Testing-with-cURL) manually, for now
-///
-///
-/// see mod `tests` in src/lib.rs for basic use examples 
-
-mod errors {
+pub mod errors {
     use hyper;
     use serde_json;
     use std::io;
