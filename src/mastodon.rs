@@ -1,9 +1,11 @@
 use std::env;
 use std::io::Read;
 
-use hyper::{self, Client};
+use hyper::Client;
+use hyper::net::HttpsConnector;
 use hyper::client::response::Response;
 use hyper::header::{Authorization, Bearer};
+use hyper_native_tls::NativeTlsClient;
 
 use serde_json;
 
@@ -15,6 +17,7 @@ macro_rules! parse_response {
         let mut r = $reader;
         let mut s = String::new();
         r.read_to_string(&mut s)?;
+        println!("{}", s);
 
         let se: Result<ServerError> = serde_json::from_str(&s).chain_err(|| "invalid json");
         match se {
@@ -34,12 +37,14 @@ impl Mastodon {
     /// create mastodon instance from access_token (as environment variable)
     pub fn from_access_token(envar: &str) -> Result<Self> {
         let token = env::var(envar).chain_err(|| "missing environment variable");
+        let ssl = NativeTlsClient::new().chain_err(|| "error establishing tls?")?;
+        let connector = HttpsConnector::new(ssl);
 
         token.map(|access| {
             Mastodon {
                 access_token: access,
                 domain: "mastodon.social".to_string(),
-                client: Client::new()
+                client: Client::with_connector(connector),
             }
         })
     }

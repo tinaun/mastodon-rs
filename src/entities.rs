@@ -1,8 +1,46 @@
-/// entiti:es.rs
+/// entities.rs
 /// data structures for the mastodon api
 ///
 use std::fmt;
 use std::error;
+
+#[doc(hidden)]
+mod nullbool {
+    /// sometimes an instance returns null instead of false for boolean values
+    /// which breaks the default deserializer
+    use serde::Deserializer;
+    use serde::de::Visitor;
+    use std::fmt;
+    use std::error::Error;
+
+    struct NullBoolVisitor {}
+
+    impl Visitor for NullBoolVisitor {
+        type Value = bool;
+
+        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            formatter.write_str("true or null")
+        }
+
+        fn visit_bool<E>(self, visitor: bool) -> Result<Self::Value, E>
+            where E: Error 
+        {
+            Ok(visitor)
+        }
+
+        fn visit_unit<E>(self) -> Result<Self::Value, E>
+            where E: Error
+        {
+            Ok(false)
+        }
+    }
+
+    pub fn de<D>(deserializer: D) -> Result<bool, D::Error>
+        where D: Deserializer
+    {
+        deserializer.deserialize(NullBoolVisitor {})
+    }
+}
 
 #[derive(Copy, Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub struct StatusId(u64);
@@ -32,6 +70,7 @@ impl fmt::Display for NotificationId {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+/// a mastodon status
 pub struct Status {
     pub id: StatusId,
     uri: String,
@@ -44,18 +83,21 @@ pub struct Status {
     created_at: String,
     reblogs_count: u64,
     favourites_count: u64,
+    #[serde(deserialize_with = "nullbool::de")]
     reblogged: bool,
+    #[serde(deserialize_with = "nullbool::de")]
     favourited: bool,
     sensitive: bool,
-    spoiler_text: bool,
+    spoiler_text: Option<String>,
     visibility: Visibility, 
     media_attachments: Vec<MediaAttachment>,
     mentions: Vec<Mention>,
     tags: Vec<Tag>,
-    application: Application
+    application: Option<Application>,
 }
 
 #[derive(PartialEq, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum Visibility {
     Public,
     Unlisted,
@@ -64,15 +106,19 @@ pub enum Visibility {
 }
 
 #[derive(PartialEq, Debug, Serialize, Deserialize)]
+#[serde(tag = "type")]
 pub enum MediaAttachment {
+    #[serde(rename = "image")]
     Image {
         url: String,
         preview_url: String,
     },
+    #[serde(rename = "video")]
     Video {
         url: String,
         preview_url: String,
     },
+    #[serde(rename = "gifv")]
     GifV {
         url: String,
         preview_url: String,
@@ -113,7 +159,7 @@ pub struct Account {
 #[derive(PartialEq, Debug, Serialize, Deserialize)]
 pub struct Application {
     name: String,
-    website: String,
+    website: Option<String>,
 }
 
 #[derive(PartialEq, Debug, Serialize, Deserialize)]

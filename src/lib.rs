@@ -10,6 +10,7 @@ extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
 extern crate hyper;
+extern crate hyper_native_tls;
 
 pub mod entities;
 pub mod mastodon;
@@ -42,9 +43,9 @@ mod errors {
 mod tests {
     use super::mastodon::*;
     use super::entities::*;
-    use std::io::{self, Read};
-    use std::fs::File;
-    use serde_json;
+    //use std::io::{self, Read};
+    //use std::fs::File;
+    //use serde_json;
 
     #[test]
     fn test_fetching_data() {
