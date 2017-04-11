@@ -4,7 +4,7 @@ use std::io::Read;
 use hyper::Client;
 use hyper::net::HttpsConnector;
 use hyper::client::response::Response;
-use hyper::header::{Authorization, Bearer};
+use hyper::header::{self, Authorization, Bearer};
 use hyper_native_tls::NativeTlsClient;
 
 use serde_json;
@@ -67,8 +67,36 @@ impl Mastodon {
                         Bearer {
                             token: self.access_token.clone(),
                         }
-            )).body(&queryparams.unwrap_or(String::new()))
+            )).header( 
+                header::ContentType::json()
+            ).body(&queryparams.unwrap_or(String::new()))
             .send().chain_err(|| "unable to send post request")
+    }
+
+        /// get user object with id `id`
+    pub fn get_account(&self, id: UserId) -> Result<Account> {
+        self._get_request(format!("/accounts/{}", id), None).and_then(|r| {
+            parse_response!(r)
+        })
+    }
+
+    /// get latest 20 statuses for user `id`
+    pub fn get_user_statuses(&self, id: UserId) -> Result<Vec<Status>> {
+        self._get_request(format!("/accounts/{}/statuses", id), None).and_then(|r| {
+            parse_response!(r)
+        })
+    }
+    /// get users `id` is following
+    pub fn get_following(&self, id: UserId) -> Result<Vec<Account>> {
+        self._get_request(format!("/accounts/{}/following", id), None).and_then(|r| {
+            parse_response!(r)
+        })
+    }
+    /// get latest 20 statuses for `id`
+    pub fn get_followers(&self, id: UserId) -> Result<Vec<Account>> {
+        self._get_request(format!("/accounts/{}/followers", id), None).and_then(|r| {
+            parse_response!(r)
+        })
     }
 
     /// get status object with id `id`
@@ -107,31 +135,21 @@ impl Mastodon {
         })
     }
 
+    pub fn post_status(&self, text: &str, reply_to: Option<StatusId>, sensitive: bool, 
+                                          spoiler_text: Option<&str>) -> Result<Status> {
+        let map = json!({
+            "status": text,
+            "in_reply_to_id": reply_to,
+            "sensitive": sensitive,
+            "spoiler_text": spoiler_text,
+            "visibility": Visibility::Public,
+        });
 
-    /// get user object with id `id`
-    pub fn get_account(&self, id: UserId) -> Result<Account> {
-        self._get_request(format!("/accounts/{}", id), None).and_then(|r| {
+        self._post_request(format!("/statuses"),
+                           serde_json::to_string(&map).ok()).and_then(|r| {
             parse_response!(r)
         })
-    }
-
-    /// get latest 20 statuses for user `id`
-    pub fn get_user_statuses(&self, id: UserId) -> Result<Vec<Status>> {
-        self._get_request(format!("/accounts/{}/statuses", id), None).and_then(|r| {
-            parse_response!(r)
-        })
-    }
-    /// get users `id` is following
-    pub fn get_following(&self, id: UserId) -> Result<Vec<Account>> {
-        self._get_request(format!("/accounts/{}/following", id), None).and_then(|r| {
-            parse_response!(r)
-        })
-    }
-    /// get latest 20 statuses for `id`
-    pub fn get_followers(&self, id: UserId) -> Result<Vec<Account>> {
-        self._get_request(format!("/accounts/{}/followers", id), None).and_then(|r| {
-            parse_response!(r)
-        })
+    
     }
 
     /// get latest statuses in home timeline

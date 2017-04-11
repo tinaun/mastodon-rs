@@ -18,7 +18,10 @@ extern crate error_chain;
 extern crate serde_derive;
 
 extern crate serde;
+
+#[macro_use]
 extern crate serde_json;
+
 extern crate hyper;
 extern crate hyper_native_tls;
 
@@ -58,7 +61,7 @@ mod tests {
 
         //let status = mastodon.get_status(StatusId(2186739)).unwrap();
         //assert_eq!(2186739, status.id.0);
-        let status = mastodon.status_favourited_by(StatusId(2186739));
+        let status = mastodon.post_status("you never saw this one...", None, false, Some("test"));
         println!("{:?}", status);
         //let status = mastodon.get_status_context(StatusId(2186739));
         //println!("{:?}", status.unwrap());

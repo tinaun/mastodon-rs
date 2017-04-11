@@ -9,3 +9,4 @@ Cargo.lock
 output.json
 testapp.json
 getaccesstoken.sh
+getapp.sh
