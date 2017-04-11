@@ -1,6 +1,6 @@
-/// entities.rs
-/// data structures for the mastodon api
-///
+//! data structures for the mastodon api
+//!
+//! 
 use std::fmt;
 use std::error;
 
@@ -69,7 +69,7 @@ impl fmt::Display for NotificationId {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 /// a mastodon status
 pub struct Status {
     pub id: StatusId,
@@ -79,10 +79,10 @@ pub struct Status {
     in_reply_to_id: Option<StatusId>,
     in_reply_to_account_id: Option<UserId>,
     reblog: Option<Box<Status>>,
-    content: String,
+    pub content: String,
     created_at: String,
-    reblogs_count: u64,
-    favourites_count: u64,
+    pub reblogs_count: u64,
+    pub favourites_count: u64,
     #[serde(deserialize_with = "nullbool::de")]
     reblogged: bool,
     #[serde(deserialize_with = "nullbool::de")]
@@ -96,8 +96,21 @@ pub struct Status {
     application: Option<Application>,
 }
 
-#[derive(PartialEq, Debug, Serialize, Deserialize)]
+impl Status {
+    /// returns the original status if status is a reblog
+    pub fn reblog(&self) -> Option<Self> {
+        if self.reblog.is_some() {
+            let r = self.reblog.clone().unwrap();
+            Some(*r)
+        } else {
+            None
+        }
+    }
+}
+
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+/// Status Visibility
 pub enum Visibility {
     Public,
     Unlisted,
@@ -105,7 +118,7 @@ pub enum Visibility {
     Direct,
 }
 
-#[derive(PartialEq, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum MediaAttachment {
     #[serde(rename = "image")]
@@ -125,13 +138,20 @@ pub enum MediaAttachment {
     }
 }
 
-#[derive(PartialEq, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+/// a #hashtag
 pub struct Tag {
     name: String,
     url: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+impl fmt::Display for Tag {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "#{}", self.name)
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Mention {
     pub id: UserId,
     url: String,
@@ -139,38 +159,41 @@ pub struct Mention {
     acct: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Mastodon Account
 pub struct Account {
     pub id: UserId,
-    username: String,
-    acct: String,
-    display_name: String,
-    note: String,
+    pub username: String,
+    pub acct: String,
+    pub display_name: String,
+    pub note: String,
     url: String,
     avatar: String,
     header: String,
     locked: bool,
     created_at: String,
-    followers_count: u64,
-    following_count: u64,
-    statuses_count: u64,
+    pub followers_count: u64,
+    pub following_count: u64,
+    pub statuses_count: u64,
 }
 
-#[derive(PartialEq, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+/// the app from which the status was posted
 pub struct Application {
     name: String,
     website: Option<String>,
 }
 
-#[derive(PartialEq, Debug, Serialize, Deserialize)]
+#[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
+/// a masodon server
 pub struct Instance {
     uri: String,
-    title: String,
-    description: String,
+    pub title: String,
+    pub description: String,
     email: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct RawNotification {
     #[serde(rename = "type")]
     tag: String,
@@ -243,7 +266,7 @@ impl From<RawNotification> for Notification {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 /// a server sent error
 /// in most cases these will be translated into results
 pub struct ServerError {

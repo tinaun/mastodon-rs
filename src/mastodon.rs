@@ -27,6 +27,8 @@ macro_rules! parse_response {
     } }
 }
 
+/// An authorized mastodon session
+///
 pub struct Mastodon {
     access_token: String,
     domain: String,
@@ -34,7 +36,7 @@ pub struct Mastodon {
 }
 
 impl Mastodon {
-    /// create mastodon instance from access_token (as environment variable)
+    /// create mastodon session from access_token (as environment variable)
     pub fn from_access_token(envar: &str) -> Result<Self> {
         let token = env::var(envar).chain_err(|| "missing environment variable");
         let ssl = NativeTlsClient::new().chain_err(|| "error establishing tls?")?;
