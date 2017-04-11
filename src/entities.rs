@@ -140,6 +140,7 @@ pub enum MediaAttachment {
 
 #[derive(PartialEq, Debug, Clone, Serialize, Deserialize)]
 /// a #hashtag
+///
 pub struct Tag {
     name: String,
     url: String,
@@ -162,10 +163,15 @@ pub struct Mention {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 /// Mastodon Account
 pub struct Account {
+    /// the numeric id of the user
     pub id: UserId,
+    /// the accounts username
     pub username: String,
+    /// equal to username for local users, includes `@domain` for remote ones
     pub acct: String,
+    /// display name of account
     pub display_name: String,
+    /// bio displayed on user profile
     pub note: String,
     url: String,
     avatar: String,
