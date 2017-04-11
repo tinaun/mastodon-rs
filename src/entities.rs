@@ -161,6 +161,12 @@ pub struct Mention {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Context {
+    ancestors: Vec<Status>,
+    descendants: Vec<Status>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 /// Mastodon Account
 pub struct Account {
     /// the numeric id of the user
