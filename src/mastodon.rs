@@ -116,11 +116,4 @@ impl Mastodon {
         })
     }
 
-    /// get latest 20 statuses for `id`
-    pub fn mentions(&self) -> Result<Vec<Status>> {
-        self._get_request(format!("/timelines/mentions"), None).and_then(|r| {
-            parse_response!(r)
-        })
-    }
-
 }
