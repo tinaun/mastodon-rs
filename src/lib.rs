@@ -58,7 +58,7 @@ mod tests {
 
         //let status = mastodon.get_status(StatusId(2186739)).unwrap();
         //assert_eq!(2186739, status.id.0);
-        let status = mastodon.get_status_card(StatusId(2186739));
+        let status = mastodon.status_favourited_by(StatusId(2186739));
         println!("{:?}", status);
         //let status = mastodon.get_status_context(StatusId(2186739));
         //println!("{:?}", status.unwrap());

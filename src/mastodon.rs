@@ -93,6 +93,20 @@ impl Mastodon {
         })
     }
 
+    /// get accounts who reblogged a status
+    pub fn status_reblogged_by(&self, id: StatusId) -> Result<Vec<Account>> {
+        self._get_request(format!("/statuses/{}/reblogged_by", id), None).and_then(|r| {
+            parse_response!(r)
+        })
+    }
+
+    /// get accounts who favourited a status
+    pub fn status_favourited_by(&self, id: StatusId) -> Result<Vec<Account>> {
+        self._get_request(format!("/statuses/{}/favourited_by", id), None).and_then(|r| {
+            parse_response!(r)
+        })
+    }
+
 
     /// get user object with id `id`
     pub fn get_account(&self, id: UserId) -> Result<Account> {
