@@ -35,9 +35,16 @@ pub struct Mastodon {
     client: Client,
 }
 
+#[macro_export]
+macro_rules! new_mastodon_instance {
+    ($envar: expr) => { Mastodon::from_access_token($envar, "mastodon.social") };
+    ($envar: expr, $domain: expr) => { Mastodon::from_access_token($envar, $domain) };
+    () => { Mastodon::from_access_token("MASTODON_TOKEN", "mastodon.social") }
+}
+
 impl Mastodon {
     /// create mastodon session from access_token (as environment variable)
-    pub fn from_access_token(envar: &str) -> Result<Self> {
+    pub fn from_access_token(envar: &str, domain: &str) -> Result<Self> {
         let token = env::var(envar).chain_err(|| "missing environment variable");
         let ssl = NativeTlsClient::new().chain_err(|| "error establishing tls?")?;
         let connector = HttpsConnector::new(ssl);
@@ -45,7 +52,7 @@ impl Mastodon {
         token.map(|access| {
             Mastodon {
                 access_token: access,
-                domain: "mastodon.social".to_string(),
+                domain: domain.to_string(),
                 client: Client::with_connector(connector),
             }
         })
